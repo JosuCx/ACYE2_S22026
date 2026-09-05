@@ -1,0 +1,64 @@
+# docker-compose.yml
+services:
+  # MQTT Broker
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    ports:
+      - "1883:1883"
+      - "9001:9001"  # WebSocket
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+
+  # Backend (Node.js o Python)
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    environment:
+      - MQTT_HOST=mosquitto
+      - MQTT_BROKER=mosquitto
+      - SERIAL_PORT=/dev/ttyACM0
+      - DB_HOST=postgres
+    depends_on:
+      - mosquitto
+      - postgres
+
+  # Base de Datos
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: smartegg
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # Redis (Caché + Pub/Sub)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+volumes:
+  pgdata:
+  grafana-data:

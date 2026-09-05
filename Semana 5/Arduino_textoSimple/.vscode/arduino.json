@@ -1,0 +1,17 @@
+{
+  "sketch": "aa.ino",
+  "board": "arduino:avr:uno",
+  "port": "auto",
+  "output": "build",
+  "schemaVersion": 1,
+  "monitorPortSettings": {
+    "port": "auto",
+    "baudRate": 115200,
+    "lineEnding": "\r\n",
+    "dataBits": 8,
+    "parity": "none",
+    "stopBits": "one"
+  },
+  "optimize_for_debug": false,
+  "configuration": ""
+}
